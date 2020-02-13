@@ -15,7 +15,8 @@ if(!require(boot)){install.packages("boot")}
 if(!require(rcompanion)){install.packages("rcompanion")}
 if(!require(summarytools)){install.packages("summarytools")}
 if(!require(tidyverse)){install.packages("tidyverse")}
-
+# install.packages("summarytools")
+# library(summarytools)
 # I give the general form below in comments.  A < > indicates you will type in
 # your own value.  The main thing to watch for this command is the punctuation: ! ""
 
@@ -68,6 +69,7 @@ compensation<-read_csv("datasets/r4all/compensation.csv")
 
 # names() tells you the names assigned to each column, generally variable
 names(compensation)
+
 
 # head() gives you the first six rows of a dataset
 head(compensation)
