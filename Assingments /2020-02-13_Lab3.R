@@ -76,7 +76,7 @@ ggplot(data = lovett_tidy)+
 
 #Loading sanchez File from datasets folder
 
-sanchez <- read_csv("~/Bio375/sanchez.csv")
+sanchez <- read_csv("Data Sets Anna/sanchez.csv")
 
 #Calculate summary statistics for sanchez
 
@@ -115,6 +115,8 @@ ggplot(sanchez)+
 
 ggplot(sanchez)+
   geom_boxplot(aes(x = bird_colony , y = log1_bettle), varwidth = TRUE)
+
+#done :)
 
 
 
