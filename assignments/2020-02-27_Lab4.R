@@ -158,6 +158,32 @@ ggplot(data = mpg) +
 #1. Using facet wrap with a continuous variable 
 
 ggplot(data = mpg) + 
-  geom_point (mapping = aes(x = displ, y = hwy)) + facet_wrap ( ~ cty, nrow =2)
-#it will group it based off of the cty variable, so each value for city mpg is seperated then
-#graphed based off of the displ and hwy variables 
+  geom_point (mapping = aes(x = displ, y = hwy)) + facet_wrap ( ~ cty, nrow=2)
+
+#it will group it based off of the cty variable, so each value for city mpg is separated then
+#graphed based off of the displ and hwy variables. It allowed me to do it, but i'm not sure how 
+#much info it actually gave me 
+
+#2. 
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y= hwy)) + facet_grid(drv ~ cyl)
+
+#the empty cells mean that there are no observations in that particular combination of 
+#groups/variables displayed in the plot. 
+#compare to 
+
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = drv, y = cyl))
+
+#this is showing something similar. For example, there is no 5 cylinder 4 wheel drive cars to be displayed
+#This is shown in the previous plot. this is why there are no data points in the 2nd group from the left
+# on the top row. Because that is the 5 cylinder and 4wd grouping
+
+#3. 
+ggplot(data = mpg) + 
+geom_point(mapping = aes(x = displ, y = hwy)) + facet_grid(drv~.)
+
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + facet_grid(. ~ cyl)
+
+#
