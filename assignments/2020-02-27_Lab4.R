@@ -546,3 +546,45 @@ bar <- ggplot(data = diamonds) +
 bar + coord_flip()
 bar + coord_polar()
 
+#2. 
+?labs
+#labs allows you to modify axis, legend and plot labels 
+
+#3. 
+
+?coord_map
+#coordmap comes from a projected portion of the earth. SO it takes a 3D sphere and makes it 2D. it requires a lot more 
+#computational energy than the quickmap 
+#coordquick map gets the info for the map from a quick approximation, so it takes less time because the straight lines makes
+#makes it easier to compute 
+
+#4. 
+
+ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) +
+  geom_point() + 
+  geom_abline() +
+  coord_fixed()
+
+#the plot shows that there is a linear relationship between the city mpg and the
+#hwy mpg. 
+?coord_fixed
+#this is important because it forces a specific ratio between the data represented on the axes. So by default
+#one unit increase in y is 1 unit increase in x. It is important to fix the ratio in this situation because
+#the units are the same on the axes. It also allows us to make an assumption about the relationship because the data
+#are visually represented properly
+?geom_abline
+#geom abline is a reference slope that is used to infer the relationship for the data. So this is a line with a slope of 1
+#and an intercept of 0, and we use it to compare to the data plotted on the graph, see if that resembles the 1:1 positive relationship
+
+#important template !!!
+
+#ggplot(data = <DATA>) + 
+#<GEOM_FUNCTION>(
+ # mapping = aes(<MAPPINGS>),
+ # stat = <STAT>, 
+  #position = <POSITION>
+#) +
+  #<COORDINATE_FUNCTION> +
+  #<FACET_FUNCTION>
+
+#FINALLY DONE :)
