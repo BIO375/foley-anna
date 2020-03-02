@@ -4,7 +4,7 @@
 rm(list = ls())
 
 ### Install and load packages ####
-
+install.packages(c("broom", "forcats", "rlang"))
 install.packages("modelr")
 if(!require(Rmisc)){install.packages("Rmisc")}
 if(!require(DescTools)){install.packages("DescTools")}
@@ -17,7 +17,7 @@ if(!require(tidyverse)){install.packages("tidyverse")}
 # Check for updates
 tidyverse_update()
 
-#Data Visualisation 
+#Data Visualization 
 
 #Load mpg data frame about car gas usage and size 
 
@@ -153,7 +153,7 @@ ggplot(data = mpg) +
 ggplot(data = mpg) + 
   geom_point (mapping = aes(x = displ, y = hwy)) + facet_grid ( drv ~ cyl)
 
-#Exercises 
+#Exercises 3.5.1
 
 #1. Using facet wrap with a continuous variable 
 
@@ -186,4 +186,79 @@ geom_point(mapping = aes(x = displ, y = hwy)) + facet_grid(drv~.)
 ggplot(data = mpg) + 
   geom_point(mapping = aes(x = displ, y = hwy)) + facet_grid(. ~ cyl)
 
-#
+#When you put the dot after the ~ symbol, then the data is facetted by the type of drive of the car
+# but then that is the only way it is divided. There isnt another attribute dividing them vertically 
+# like in the plot in #2. The y axis is repeated on each of the plots
+#For the dot before the ~ symbol, it does a similar thing, but will facet the groups without a horizontal attribute. 
+#The data will be grouped by the cyl attribute like above, then the x axis is repeated on each individual plot 
+
+#4. 
+
+ggplot(data = mpg) + 
+geom_point(mapping = aes(x = displ, y = hwy, color = class))
+
+#When using the colors, it is hard to distinguish the pattern of each individual class compared to each other.
+#But, it is easier to see how the classes compared to the other classes overall. For the faceting, it makes being 
+#able to see the individual classes better, but then you can't see the data all together on the plot
+#For the larger data sets, I feel like it would be better to see them all compared to each other on the same 
+#plot, than individual plots of many points that kind of cluster together but don't really portray any meaning
+#unless you are comparing them to the other classes 
+
+#5. 
+
+?facet_wrap
+
+#Nrow & ncol allows you to choose the numbers of rows and columns. Other options include scales for the axes
+#scales can either be free or fixed, or fixed for either x or y dimension. Shrink can be used to change the scales
+#so that it will either fit the output of statistics, or be the range of the raw data before the statistical summary
+#Facet-grid does not have nrow and ncol because those are already determined by the specific attributes 
+
+#6. You want to be able to see the data as spread out as possible when you are making a plot, so putting the variable 
+#with the most unique levels in the columns prevents the data from being displayed on an axis that is smaller and therefore 
+#less interpretable 
+
+#3.6 Geometric Objects 
+
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy))
+
+ggplot(data = mpg) + 
+  geom_smooth(mapping = aes(x = displ, y = hwy))
+
+#Note: not every aesthetic works with every geom 
+#Set the linetype with Geom_smooth
+
+ggplot(data = mpg) + 
+  geom_smooth(mapping = aes(x = displ, y = hwy, linetype = drv))
+
+#Different versions of the graph 
+
+ggplot(data = mpg) +
+  geom_smooth(mapping = aes(x = displ, y = hwy))
+
+ggplot(data = mpg) +
+  geom_smooth(mapping = aes(x = displ, y = hwy, group = drv))
+
+ggplot(data = mpg) +
+  geom_smooth(mapping = aes(x = displ, y = hwy, color = drv),
+    show.legend = FALSE)
+#How to display multiple geoms on the same plot 
+
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  geom_smooth(mapping = aes(x = displ, y = hwy))
+
+#To avoid problems with duplicated code 
+
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point() + 
+  geom_smooth()
+
+#If you put mappings in the geom function, it will override the global mappings
+#for that layer only 
+
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(mapping = aes(color = class)) + 
+  geom_smooth()
+
+#You can get the smooth line to display just a subset, such as the compact cars
