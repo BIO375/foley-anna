@@ -242,6 +242,7 @@ ggplot(data = mpg) +
 ggplot(data = mpg) +
   geom_smooth(mapping = aes(x = displ, y = hwy, color = drv),
     show.legend = FALSE)
+
 #How to display multiple geoms on the same plot 
 
 ggplot(data = mpg) + 
@@ -262,3 +263,118 @@ ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
   geom_smooth()
 
 #You can get the smooth line to display just a subset, such as the compact cars
+#The local argument under the geom will override the global data argument 
+
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(mapping = aes(color = class)) + 
+  geom_smooth(data = filter(mpg, class == "subcompact"), se = FALSE)
+
+#3.6.1 Exercises 
+
+#1. Like mentioned in the chapter, I would use line geom for line charts, boxplot geom for
+#box plot, histogram geom for the histogram and the area geom for the area plot. ggplot2
+# has over 40 geoms for the program.
+
+#2. This graph will have the display on the x, with the hwy mpg on the y, and the dots will
+# be different colors based on the type of wheel drive the car is. There will be a line for 
+#each group but with false for SE, so no confidence interval displayed 
+
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy, color = drv)) + 
+  geom_point() + 
+  geom_smooth(se = FALSE)
+
+#3. If you put false, it will not show the legend box for the colors of the drv. So if you remove the command 
+# then there will show a legend for the graph.
+#example from earlier in the chapter: 
+
+ggplot(data = mpg) +
+  geom_smooth(mapping = aes(x = displ, y = hwy, color = drv),
+          )
+# In that part of the question, the importance wasn't which groups each line was, but just showing that you could change the
+#color of the group and distinguish them based off of color, that is probably why a legend wasn't included
+
+#4. se argument is for displaying confidence intervals around the line, the grey area around the line. 
+
+#5. no they will not be different. It was talked about before in the chapter, because both of the geom 
+#plots will get that information from the ggplot. In the second one, ggsmooth and gg point 
+# both have the same data and mappings 
+
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point() + 
+  geom_smooth()
+
+ggplot() + 
+  geom_point(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_smooth(data = mpg, mapping = aes(x = displ, y = hwy))
+
+#6. Recreate R code to generate the following graphs 
+
+#top left
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point() + 
+  geom_smooth(se = FALSE)
+
+#top right 
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point() + 
+  geom_smooth(mapping = aes (group = drv), se = FALSE)
+
+#middle left 
+
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(mapping = aes (group = drv, color  = drv)) + 
+  geom_smooth(mapping = aes (group = drv, color = drv), se = FALSE)
+
+#middle right
+
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(mapping = aes (group = drv, color  = drv)) + 
+  geom_smooth (se = FALSE)
+
+#bottom left 
+
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(mapping = aes (group = drv, color  = drv)) + 
+  geom_smooth(mapping = aes (group = drv, linetype = drv), se = FALSE)
+
+#bottom right 
+
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(mapping = aes(color=drv)) +
+  geom_point(shape = 21, color = "white", stroke = 1)
+
+#3.7 Statistical Transformations 
+
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut))
+
+#generally use geoms and stats interchangeably 
+
+ggplot(data = diamonds) + 
+  stat_count(mapping = aes(x = cut))
+#3 reasons why you want to state stat explicitly 
+
+#1. override default stat 
+
+demo <- tribble(
+  ~cut,         ~freq,
+  "Fair",       1610,
+  "Good",       4906,
+  "Very Good",  12082,
+  "Premium",    13791,
+  "Ideal",      21551
+)
+
+ggplot(data = demo) +
+  geom_bar(mapping = aes(x = cut, y = freq), stat = "identity")
+
+#2. Override default mapping. display proportion rather than count 
+
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, y = stat(prop), group = 1))
+
+#3. draw greater attention to stat 
+
+ggplot(data = diamonds) + 
+  stat_summary(mapping = aes(x = cut, y = depth),fun.ymin = min, fun.ymax = max,fun.y = median)
+    
