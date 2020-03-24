@@ -150,11 +150,40 @@ ggplot(heartattack)+
 # Calculate the ratio between the standard deviations as a loose test of homoscedasticity
  ratio <-(max(heart_summary$sd_heart))/(min(heart_summary$sd_heart))
 
-##The ratio is 2.20, which means it is less than or equal to 3, so the variances are homegenous enough for the parametric test
+##The ratio is 2.20, which means it is less than or equal to 3, so the variances are homegenous enough for the parametric test, not the
+ #welch's seperate variance test 
  
 # With both of these assumptions that are not violated, then we can assume the two sample t test is reliable 
  
-##2.5 perform 2 sample t test 
+##2.5 perform 2 sample pooled variance t test 
+ 
+# Two-sided
+ t.test(cholest ~ group, data = heartattack, var.equal = TRUE, alternative = "two.sided", conf.level = 0.95)
+
+##Conclusions: We found that blood cholesterol in heart-attack patients 2 days post heart attack was
+##statistically different than the blood cholesterol in individuals who did not have a heart attack
+## (two-sample t test: t=6.2852; df = 56; P = 5.202 x10^-8)
+ 
+ 
+##Problem 3####
+ 
+furness <- read_csv("datasets/quinn/chpt3/furness.csv")
+
+##3.1 
+##When there are departures from normality in the data, you can use a non-parametric test, 
+ #it does not assume normally distributed observations 
+
+##Assumptions of a Non-parametric test 
+ #1. Still a random sample of observations (for the 1 &2 sample designs they also have to be independent observations)
+ #2. If it is a two-sample design, it must have homogenous variance 
+ #3.If a two sample design, then the shape that is non-normal needs to still have similar distribution shape 
+ 
+##The options for tests are
+ #A) Sign Test. This option is used for non-normally distributed data in which you would have used a one sample or paired t test.
+ #B) Mann-Whitney U test or Wilcoxan rank sum test. This would be used for non-normally distributed data in which we would have used 
+ #a two-sample test 
+ 
+ ##In this case, we are looking at males versus females so we would go with option B the Mann-Whitney U test or Wilcoxan rank sum test
  
 
 
