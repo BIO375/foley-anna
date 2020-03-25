@@ -185,6 +185,135 @@ furness <- read_csv("datasets/quinn/chpt3/furness.csv")
  
  ##In this case, we are looking at males versus females so we would go with option B the Mann-Whitney U test or Wilcoxan rank sum test
  
+##3.2
+ 
+#In the two-sample t test, the null hypothesis tested is the difference between the two population means is equal to a certain 
+#to zero. (u1 -u2 = 0). For the MWU test, the H0 tested is that if the non-normal distributions are the same shape, that 
+ #median 1-median2 =0. They are different in what statistic they are using to describe the population, mean versus median. If not the 
+ #same shape, then the H0 tested is that the two groups have the same distribution 
+ 
+##3.3
+ 
+ #THe underlying assumptions for MWU test include 
+ #a)the dependent variable is measured on a continuous scale and the independent variable is 2 categories 
+ #b) the observations still need to be a random sample and independent from each other (no relationship between the two groups ), 
+ #similar to two sample 
+ #c) For the MWU, the non-normal distributions have to be the same shape and if not the same shape, then the H0 is that they have 
+ #the same distribution
+
+##Why might this not be the best test?
+ggplot(furness) +
+   geom_histogram(aes(METRATE), binwidth = 500)+
+   facet_wrap(~SEX)
+ 
+ ggplot(furness) +
+   geom_boxplot(aes(x = SEX, y = METRATE))+
+   stat_summary(aes(x = SEX, y = METRATE), 
+                fun.y=mean, 
+                colour="blue", 
+                fill = "blue",
+                geom="point", 
+                shape=21, 
+                size=3)
+ 
+ ggplot(furness)+
+   geom_qq(aes(sample = METRATE, color = SEX))
+ 
+#Unlike the cricket data, which showed that they were both right skewed, the furness data does not obviously show the same shape
+ #with the female data looking a bit ore right skewed than the male data. Overall, it is also hard to tell with the small sample size in
+ #each group
+
+#3.4 Perform Wilcoxon test 
+ 
+# Two-sided
+wilcox.test(METRATE ~ SEX, data = furness, alternative = "two.sided", conf.level = 0.95)
+
+#We found that the metabolic rate of male fulmars was not statistically different than the metabolic rate of female 
+#fulmars (Wilcoxon rank sums test: W=21, p-value = 0.75)
+ 
+
+##Problem 4####
+
+elgar <- read_csv("datasets/quinn/chpt3/elgar.csv")
+
+##Mutate data to do difference in horizontal diameter, check if normally distributed 
+
+elgar <- elgar %>%
+  mutate(diff_hori = HORIZLIG-HORIZDIM)
+
+ggplot(elgar) +
+  geom_histogram(aes(diff_hori), binwidth = 60)
+
+ggplot(elgar) +
+  geom_boxplot(aes(x = "", y = diff_hori))+
+  stat_summary(aes(x = "", y = diff_hori), 
+               fun.y=mean, 
+               colour="green", 
+               fill = "green",
+               geom="point", 
+               shape=21, 
+               size=3)
+
+ggplot(elgar)+
+  geom_qq(aes(sample = diff_hori))
 
 
+##4.1 
 
+#After looking at the histogram, boxplot and the qq plot for the differences in the horizontal diameter of webs. The histogram 
+#is not very informative, but when looking at the boxplot, the median and the mean are very similar, and the median is centered in the 
+#middle of the IQR. In addition, the whiskers are similar in length with no outliers. Lastly, the qq plot shows pretty linear relationship
+#Looking at all this, I assume normality in the elgar data, meaning that we can use a parametric test. As mentioned in the introduction 
+#they used paired comparisons because it was the same spider spinning the web at different conditions. So since the experimental units are
+#sampled twice and not independent of each other, then a paired t test is the appropriate test. 
+
+##4.2 
+
+# The null hypothesis is that the difference in horizontal diameter spun in light and dark conditions is zero 
+# ud= 0 (ulig - udim = 0)
+
+
+##4.3
+
+#load tidy data 
+
+elgar_tidy <- read_csv("Data Sets Anna/elgartidydata.csv")
+
+##summary 
+
+elgar_summary <- elgar_tidy %>%
+  group_by(`Lighting`) %>%
+  summarise(n_heart = n(),
+            mean_lighting = mean(hori_length ),
+            median_lighting = median(hori_length ),
+            sd_lighting = sd(hori_length ),
+            IQR_lighting = IQR(hori_length ),
+            var_lighting = var(hori_length ),
+            se_lighting = sd(hori_length )/sqrt(n()))
+
+##Check assumption of homogenous variance 
+
+ratio <-(max(elgar_summary$sd_lighting))/(min(elgar_summary$sd_lighting))
+
+#ratio is 1.09, so it meets assumption of homogenous variance
+
+#Although these data meet the assumption of a random sample and homogenous variance, These data do not meet one assumption 
+#for the two sample t test because as mentioned before, the measurement in the light and dim 
+#conditions are not independent of each other. If they had used different randomly selected spiders and only measured each experimental 
+#unit once, then it would meet the assumptions for two sample. But the experimental units are not independent. 
+
+
+##4.4 perform appropriate statistical test, paired t test
+
+t.test(elgar$HORIZLIG, elgar$HORIZDIM, 
+       alternative = "two.sided", paired = TRUE, conf.level = 0.95)
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
