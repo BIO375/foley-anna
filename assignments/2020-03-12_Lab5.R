@@ -13,6 +13,12 @@ if(!require(tidyverse)){install.packages("tidyverse")}
 # Check for updates
 tidyverse_update()
 
+
+##Type 1 error question 
+
+#The definition above for Type I error is when you reject the null hypothesis eventhough it is true. The definition of alpha 
+#(significance level) is the probability of rejecting the null eventhough it is true, therefore alpha is the porbability of committing 
+#a Type I error. 
 #Problem 1####
 
 earthangle <- read_csv("Data Sets Anna/EarthAngleData.csv")
@@ -150,7 +156,7 @@ ggplot(heartattack)+
 # Calculate the ratio between the standard deviations as a loose test of homoscedasticity
  ratio <-(max(heart_summary$sd_heart))/(min(heart_summary$sd_heart))
 
-##The ratio is 2.20, which means it is less than or equal to 3, so the variances are homegenous enough for the parametric test, not the
+##The ratio is 2.14, which means it is less than or equal to 3, so the variances are homegenous enough for the parametric test, not the
  #welch's seperate variance test 
  
 # With both of these assumptions that are not violated, then we can assume the two sample t test is reliable 
