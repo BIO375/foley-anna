@@ -13,12 +13,17 @@ if(!require(tidyverse)){install.packages("tidyverse")}
 # Check for updates
 tidyverse_update()
 
-
 ##Type 1 error question 
 
-#The definition above for Type I error is when you reject the null hypothesis eventhough it is true. The definition of alpha 
-#(significance level) is the probability of rejecting the null eventhough it is true, therefore alpha is the porbability of committing 
-#a Type I error. 
+# The type I error rate is affected by alpha, the significance level and the lower the alpha, the lower the 
+#chance of type I error. Alpha is giving you the probability that you are rejecting
+#the null hypothesis, even if the null hypothesis is actually true. 
+
+#The definition above for Type I error is when you reject the null hypothesis even though it is true. The definition of alpha 
+#(significance level) is the probability of rejecting the null even though it is true, therefore alpha is the probability of a Type I error 
+#given that the null hypothesis is true
+
+
 #Problem 1####
 
 earthangle <- read_csv("Data Sets Anna/EarthAngleData.csv")
@@ -26,14 +31,14 @@ earthangle <- read_csv("Data Sets Anna/EarthAngleData.csv")
 ###1.1 
 
 #The hypothesis is two sided, because we are seeing if the angle is different than the angle given by the paris observatory in 
-#1738. So it can either be greater or smaller for the alternative hypothesis 
+#1738. So the alternate hypothesis is saying it is either greater or smaller for the alternative hypothesis 
 
 #therefore: a) angle is different from angles measures (u0 does not equal u previous)
 
 ###1.2 
 
 #The null hypothesis is that the 1738 measurement is the same as the angles from the past 
-#(u0 = uprevious)
+#(u0 = u previous)
 
 ##1.3 One sample T test 
 
@@ -70,7 +75,7 @@ t.test(earthangle$Obliquity,
 
 heartattack <- read_csv("datasets/demos/HeartAttack_short.csv")
 
-
+heartattack <- read_csv("datasets/demos/HeartAttack_short.csv", col_types = cols(group = col_character()))
 ##2.1 
 
 #two-sided because we are looking for just a difference (not greater or less than)
@@ -78,9 +83,11 @@ heartattack <- read_csv("datasets/demos/HeartAttack_short.csv")
 #Group 2 Control 
 
 #Statistical alternative hypothesis 
+#u1 ≠ u2
 #u1 - u2 ≠ 0 
 
 #Statistical Null hypothesis 
+# u1 = u2 
 #u1 - u2 = 0
 
 ##2.2 
@@ -147,17 +154,20 @@ ggplot(heartattack)+
   geom_qq(aes(sample = log_cholest, color = group))
 
 # In both histograms, it seems to be a generally normal distribution, with a larger range for group 1 compared
-#to group 2. There also shows a tail in the lower end for group 1. As for the boxplots, it shows an outlier&longer whisker and right skew for 
-#group 2, with the mean being larger than the median. For group1, the whiskers are relatively the same length but the mean is more centered
-#in the middle of the IQR than the median. But, similar to the ward snail data, the samples sizes of 28 and 30 are large so even with the slight
+#to group 2. There also shows a tail in the lower end for group 1. For the boxplots, it shows an outlier & longer whisker and right skew for 
+#group 2, with the mean being larger than the median. For group 1, the whiskers are relatively the same length but the mean is more centered
+#in the middle of the IQR than the median, indicating a slight left skew. The qq plot for both group 1 and group 2 has some outliers, 
+#but overall looks pretty linear. I log-transformed the data to see if it would improve, but it 
+#did not really help much, so I stuck with the original data.
+#In terms of the type of test, similar to the ward snail data, the samples sizes of 28 and 30 are large so even with the slight
 #deviations from normality, a parametric test is still okay 
 
 
 # Calculate the ratio between the standard deviations as a loose test of homoscedasticity
  ratio <-(max(heart_summary$sd_heart))/(min(heart_summary$sd_heart))
 
-##The ratio is 2.14, which means it is less than or equal to 3, so the variances are homegenous enough for the parametric test, not the
- #welch's seperate variance test 
+##The ratio is 2.14, which means it is less than or equal to 3, so the variances are homogeneous enough for the parametric test, not the
+ #welch's separate variance test 
  
 # With both of these assumptions that are not violated, then we can assume the two sample t test is reliable 
  
@@ -169,45 +179,62 @@ ggplot(heartattack)+
 ##Conclusions: We found that blood cholesterol in heart-attack patients 2 days post heart attack was
 ##statistically different than the blood cholesterol in individuals who did not have a heart attack
 ## (two-sample t test: t=6.2852; df = 56; P = 5.202 x10^-8)
- 
+
  
 ##Problem 3####
  
 furness <- read_csv("datasets/quinn/chpt3/furness.csv")
 
 ##3.1 
-##When there are departures from normality in the data, you can use a non-parametric test, 
- #it does not assume normally distributed observations 
+##When there are departures from normality in the data, one option is to mutate the data to see if it can be represented 
+ #as log transformed but with normality, if that doesn't work, then you can use a non-parametric test, 
+ #because it does not assume normally distributed observations 
 
 ##Assumptions of a Non-parametric test 
  #1. Still a random sample of observations (for the 1 &2 sample designs they also have to be independent observations)
- #2. If it is a two-sample design, it must have homogenous variance 
+ #2. If it is a two-sample design, it must have homogeneous variance 
  #3.If a two sample design, then the shape that is non-normal needs to still have similar distribution shape 
  
 ##The options for tests are
- #A) Sign Test. This option is used for non-normally distributed data in which you would have used a one sample or paired t test.
+ #A) Sign Test. This option is used for non-normally distributed data in which you would have used a one sample or paired t test that
+ #have two observations that are not independent of each other .
  #B) Mann-Whitney U test or Wilcoxan rank sum test. This would be used for non-normally distributed data in which we would have used 
- #a two-sample test 
+ #a two-sample test (where the two observations we are comparing are independent of each other unlike the situation mentioned above)
  
  ##In this case, we are looking at males versus females so we would go with option B the Mann-Whitney U test or Wilcoxan rank sum test
  
 ##3.2
  
-#In the two-sample t test, the null hypothesis tested is the difference between the two population means is equal to a certain 
+#In the two-sample t test, the null hypothesis tested is the difference between the two population means is equal to a certain value or 
 #to zero. (u1 -u2 = 0). For the MWU test, the H0 tested is that if the non-normal distributions are the same shape, that 
- #median 1-median2 =0. They are different in what statistic they are using to describe the population, mean versus median. If not the 
- #same shape, then the H0 tested is that the two groups have the same distribution 
+ #median 1-median2 =0. It is different from a 2 sample t test in what statistic they are using to describe the population, mean versus median. If the distributions are not the 
+ #same shape, then the H0 tested is that the two groups come from the same distribution 
  
 ##3.3
  
  #THe underlying assumptions for MWU test include 
- #a)the dependent variable is measured on a continuous scale and the independent variable is 2 categories 
- #b) the observations still need to be a random sample and independent from each other (no relationship between the two groups ), 
+ #a) the observations still need to be a random sample and independent from each other (no relationship between the two groups ), 
  #similar to two sample 
- #c) For the MWU, the non-normal distributions have to be the same shape and if not the same shape, then the H0 is that they have 
- #the same distribution
-
+ #b) the groups have equal variance
+ #If those two criteria are met, c) MWU tests the null that the two groups come from the same distribution. 
+ #d)If a and b are true AND the histogram appear to have similar distribution, the the null tested is that the two groups have the same median. 
+ 
 ##Why might this not be the best test?
+
+##Calculate summary statistics for each group 
+ 
+ furness_summary <- furness %>%
+   group_by(`SEX`) %>%
+   summarise(n_fulmar = n(),
+             mean_fulmar = mean(METRATE),
+             median_fulmar = median(METRATE),
+             sd_fulmar = sd(METRATE),
+             IQR_fulmar = IQR(METRATE),
+             var_fulmar = var(METRATE),
+             se_fulmar = sd(METRATE)/sqrt(n()))
+ 
+ ratio <-(max(furness_summary$sd_fulmar))/(min(furness_summary$sd_fulmar))
+ 
 ggplot(furness) +
    geom_histogram(aes(METRATE), binwidth = 500)+
    facet_wrap(~SEX)
@@ -225,9 +252,13 @@ ggplot(furness) +
  ggplot(furness)+
    geom_qq(aes(sample = METRATE, color = SEX))
  
-#Unlike the cricket data, which showed that they were both right skewed, the furness data does not obviously show the same shape
+ 
+ 
+#The ratio of variances is still below 3, so that assumptions is fine. Unlike the cricket data, which showed that they were both right skewed, the furness data does not obviously show the same shape
  #with the female data looking a bit ore right skewed than the male data. Overall, it is also hard to tell with the small sample size in
- #each group
+ #each group. another reason why it might not be a great test is that in the intro it says Furness and Bryant were studying 
+ #energy budgets of breeding northern fulmars, so maybe the observations are randomly sampled but not independent of each other because
+ #of breeding. 
 
 #3.4 Perform Wilcoxon test 
  
@@ -266,12 +297,12 @@ ggplot(elgar)+
 
 ##4.1 
 
-#After looking at the histogram, boxplot and the qq plot for the differences in the horizontal diameter of webs. The histogram 
-#is not very informative, but when looking at the boxplot, the median and the mean are very similar, and the median is centered in the 
-#middle of the IQR. In addition, the whiskers are similar in length with no outliers. Lastly, the qq plot shows pretty linear relationship
-#Looking at all this, I assume normality in the elgar data, meaning that we can use a parametric test. As mentioned in the introduction 
+#After looking at the histogram, boxplot and the qq plot for the differences in the horizontal diameter of webs, the histogram 
+#is not very informative. When looking at the boxplot, the median and the mean are very similar, and the median is centered in the 
+#middle of the IQR. In addition, the whiskers are similar in length with no outliers. Lastly, the qq plot shows pretty linear relationship.
+#Looking at all this, I assume normality in the elgar data, meaning that we can use a parametric test. As mentioned in the introduction, 
 #they used paired comparisons because it was the same spider spinning the web at different conditions. So since the experimental units are
-#sampled twice and not independent of each other, then a paired t test is the appropriate test. 
+#sampled twice and not independent of each other, then a paired t test is the appropriate test as opposed to the two-sample parametric tests.
 
 ##4.2 
 
@@ -297,13 +328,13 @@ elgar_summary <- elgar_tidy %>%
             var_lighting = var(hori_length ),
             se_lighting = sd(hori_length )/sqrt(n()))
 
-##Check assumption of homogenous variance 
+##Check assumption of homogeneous variance 
 
 ratio <-(max(elgar_summary$sd_lighting))/(min(elgar_summary$sd_lighting))
 
-#ratio is 1.09, so it meets assumption of homogenous variance
+#ratio is 1.09, so it meets assumption of homogeneous variance
 
-#Although these data meet the assumption of a random sample and homogenous variance, These data do not meet one assumption 
+#Although these data meet the assumption of a random sample and homogeneous variance, These data do not meet one assumption 
 #for the two sample t test because as mentioned before, the measurement in the light and dim 
 #conditions are not independent of each other. If they had used different randomly selected spiders and only measured each experimental 
 #unit once, then it would meet the assumptions for two sample. But the experimental units are not independent. 
