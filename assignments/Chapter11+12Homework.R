@@ -230,3 +230,4 @@ mean_antibody + c(-1,1)*qt(1-alpha, df_ant )*se_ant
 ##95% CI for antibody group = 74.04 - 92.22
 
 
+
