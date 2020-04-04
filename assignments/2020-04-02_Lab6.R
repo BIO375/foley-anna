@@ -21,6 +21,17 @@ tidyverse_update()
 
 salmon <- read_csv("Data Sets Anna/salmontidydata.csv")
 
+##13-20 a)
+
+##Two methods you could use for this data would be ANOVA and two-sample t test. Both of these can specifically test a difference 
+#between the two means if they meet the assumptions of normal distribution and homogenous variance. If the data does not 
+#meet the assumption of homogenous variance, than a Welch's unequal variance test can be used. If the data does not meet
+#the assumption of a normal distribution, then you could use the MWU test. But if the distributions were not the same shape, 
+#then you could not test the difference in means. 
+
+##13-20 b)
+
+
 ##Calculate Summary stats for salmon data 
 salmon_summary <- salmon %>%
   group_by(species) %>%
@@ -51,10 +62,11 @@ ggplot(data = salmon, mapping = aes(x = species, y = abs)) +
 ggplot(salmon)+
   geom_qq(aes(sample = abs, color = species))
 
-##Looking at the plots, the data seem pretty normal. THe histograms are always so difficult to tell,with the kokanee group have much more variability than
+##Looking at the plots, the data seem pretty normal. The histograms are always so difficult to tell, with the kokanee group have much more variability than
 #the sockeye group, but it is hard to tell any departures from normality. The boxplots look pretty even, with the mean being very similar
 #to the median in both groups. The median is also pretty centered in the IQR, with the whiskers being even in both groups and only one 
-#outlier in the sockeye group. If the ratio of s is less than 3, I would assume normality and perform a 2 sample t test.
+#outlier in the sockeye group.The qq plot shoes for both of the groups the data is pretty linear.
+#If the ratio of s is less than 3, I would assume normality and homoscedasticity and perform a 2 sample t test.
 
 # Calculate the ratio between the standard deviations as a loose test of homoscedasticity
 ratio <-(max(salmon_summary$sd_salmon))/(min(salmon_summary$sd_salmon))
@@ -77,7 +89,6 @@ salmon_summary2 <- salmon %>%
             var_salmon = var(log_abs),
             se_salmon = sd(log_abs)/sqrt(n()))
 
-
 ggplot(salmon) +
   geom_histogram(aes(log_abs), binwidth = 0.1)+
   facet_wrap(~species)
@@ -98,12 +109,11 @@ ggplot(salmon)+
 ##Calculate log ratio of s 
 
 ratio <-(max(salmon_summary2$sd_salmon))/(min(salmon_summary2$sd_salmon))
-#13-20 a####
-
-#Two methods you could use for this data are a parametric two-sample t test (or welch's test) or the Mann Whitney U test/wilcoxan rank sum test for non-parametric data
 
 ##Overall, I would perform the welch's t test because the data is pretty normal (even before the transformation) so the only problem
-#was the sd ratio. 
+#was the s ratio being above 3
+
+##Looking for DIFFERENCE in mean skin color between the sockeye and the kokanee 
 
 #The null hypothesis is that 
 # uk = us
@@ -114,8 +124,8 @@ ratio <-(max(salmon_summary2$sd_salmon))/(min(salmon_summary2$sd_salmon))
 # Two-sided
 t.test(abs ~ species, data = salmon, alternative = "two.sided", conf.level = 0.95)
 
-#The data shows that the kokanee salmon had a significantly higher mean absorbance than the sockeye salmon (Welch's t test, two-sided, t=11.146, df = 20.289
-#p value = 4.198 x10^-10)
+#Kokanee salmon had a significantly higher mean skin absorbance than the sockeye salmon 
+#(Welch's t test, two-sided, t=11.15, df = 20.29, p value = 4.20 x10^-10)
 
 ##13.25####
 
@@ -140,28 +150,16 @@ ggplot(data = trees, mapping = aes(x = '', y = biomassChange)) +
 ggplot(trees)+
   geom_qq(aes(sample = biomassChange))
 
-##When looking at the histogram, it looks a bit left skewed in the book as well as in the histogram in R studio. When looking at the boxplot,
-# the mean is a bit different than the median in the direction of left skew like we saw in the histogram, and with that we can see two low outliers
-# below the box. However, other than them the whiskers are relatively even and the median is centered within the IQR.The qq plot shows a line
-#that is not perfectly straight with the outliers, but the bulk of the data is relatively close. I would say because the n is relatively 
-# high at 36, that the outliers that make the left skew are not as important as in a data set with smaller n, so we can still assume 
-#normality and perform a paired t test. We are performing a paired T test over atwo-sample because there are 2 observations per 
-#experimental unit for this and we are looking at the difference between before the clear cutting and after, not two individual
-#groups of trees not near a clear cut and trees near a clear cut. These treatment groups are not independent of each other 
-#so that violates an assumption for two-sample.
-
-# The code below ASSUMES that you have read in the data file
-# Now you have to specify which dataset the values are coming from using the form dataset$variable_name.
-
-# Two-sided
-t.test(trees$biomassChange, 
-       alternative = "two.sided", mu = 0, conf.level = 0.95)
-
-#The change in biomass of the rainforest after clear cutting was not significantly different (paired t test, two sided, t = -0.853, df=35, p=0.3996)
+##When looking at the histogram, it looks left skewed in the book as well as in the histogram in R studio. When looking at the boxplot,
+# the mean is a different than the median in the direction of left skew like we saw in the histogram, and with that we can see two low outliers
+# below the box. The whiskers are a bit uneven, even with the median is centered within the IQR.The qq plot shows a line
+#that is not perfectly straight with the outliers.
 
 ####Try mutating the data 
 trees <- trees %>%
   mutate(log_biomass15 = log(biomassChange + 15))
+##add 15 because log 0 is undefined 
+
 
 ##Check normality assumption 
 # Look at histograms, box plots, q-q plots
@@ -183,6 +181,17 @@ ggplot(trees)+
   geom_qq(aes(sample = log_biomass15))
 
 ##Honestly, log transforming +15 to make the numbers not negative made the data worse not better. So my analysis is of the unmutated data
+
+#Transforming the data did not really do anything. Even with n being relatively high at 36, that the data is still not
+#normal enough. The non-parametric version of the paired t test and one sample is the sign test. 
+
+# One-sample, Two-sided
+SignTest(trees$biomassChange, alternative = "two.sided", mu = 0, conf.level = 0.95)
+
+#The change in biomass of the rainforest after clear cutting nearby was not significantly different
+#(Sign test, two sided, S = 21, number of difference =36, p=0.405)
+#(median of differences 0.2, 97.1% CI: -1.4----1.2)w
+
 
 ##13.26####
 
@@ -221,7 +230,6 @@ finches <- finches %>%
 ggplot(finches) +
   geom_histogram(aes(log_pref), binwidth = 0.3)
 
-
 ggplot(data = finches, mapping = aes(x = '', y = log_pref)) + 
   geom_boxplot()+
   stat_summary(aes(x = '', y = log_pref), 
@@ -239,10 +247,9 @@ ggplot(finches)+
 #The whiskers are also similar in length. Overall, I think the log transformation helped make the data a bit more normal, so we will analyse it
 #with the proper parametric test.
 ##It was easier to determine that it was a one sample instead of a paired or two-sample t test because they gave you the data as
-#preference instead of two groups measurements for each brother finch. I find this data similar to the koala bellow example.Each experimental
+#preference instead of two groups measurements for each brother finch. I find this data similar to the koala bellow example. Each experimental
 #group is not measured twice, like for a paired t test, but the finches are not independent of each other either which is an 
 #assumption for a two-sample, so we can test it in the form of one-sample and the parameter of interest is no preference
-
 
 ##Null hypothesis is 
 #u = 0
@@ -250,12 +257,15 @@ ggplot(finches)+
 #Alternate hypothesis iS 
 #u ≠ 0
 
+##measured in terms of percentage spent next to carotenoid supplemented male
+
 # Two-sided
 t.test(finches$preference, 
        alternative = "two.sided", mu = 0, conf.level = 0.95)
 
-#The data showed significant preference for the caretenoid-supplemented finches over the low-caretenoid finches.(One-sample, two-sided
-#. t = 5.6198, df=9, p=0.000326)
+#The data showed significant preference for the caretenoid-supplemented finches over the low-caretenoid finches.
+#(One-sample, two-sided, t = 5.62, df=9, p=0.000326)
+
 
 ##Review 2-16####
 
@@ -263,6 +273,7 @@ zebrafish <- read_csv("datasets/abd/review2/rev2q16ZebrafishAggression.csv")
 
 ##Check normality assumption 
 # Look at histograms, box plots, q-q plots
+
 ggplot(zebrafish) +
   geom_histogram(aes(timeInAggression), binwidth = 32)+
   facet_wrap(~genotype)
@@ -283,20 +294,7 @@ ggplot(zebrafish)+
 # Calculate the ratio between the standard deviations as a loose test of homoscedasticity
 ratio <-(max(zebrafish_summary$sd_zebra))/(min(zebrafish_summary$sd_zebra))
 
-
-##The histogram is hard to look at for normality. WT looks relatively normal but hard to get a binwidth for the spd mutant.
-#The boxplot shows for the mutant group, the mean and the median are almost identical and positioned in the middle of the IQR. The 
-#whiskers are very similar in length. The WT is a bit less even, with the mean being smaller than the median but the top whisker
-#being longer. Still, no outliers.What is intersting is the qq plot actually looks more linear for the WT than the Spd mutant, even 
-#with the boxplots being the way they are. I would say that the departures from normality are not that severe and that I would
-#test the data with a parametric test. I would choose two-sample because each experimental unit is only observed once, and the experimental
-#units are independent. They are from a normally distributed population and the ratio of sd is 1.39, so there is homoscedasticity
-
-
-
-
 ##Summary Statistics 
-
 zebrafish_summary <- zebrafish %>%
   group_by(genotype) %>%
   summarise(n_zebra = n(),
@@ -307,9 +305,24 @@ zebrafish_summary <- zebrafish %>%
             var_zebra = var(timeInAggression),
             se_zebra = sd(timeInAggression)/sqrt(n()))
 
-##2.16 a&b####
+##The histogram is hard to look at for normality. WT looks relatively normal but hard to get a binwidth for the spd mutant.
+#The boxplot shows, for the mutant group, the mean and the median are almost identical and positioned in the middle of the IQR. The 
+#whiskers are a little bit uneven. The WT is a bit less symmetrical, with the mean being smaller than the median but the top whisker
+#being longer. Still, no outliers. What is interesting is the qq plot actually looks more linear for the WT than the Spd mutant, even 
+#with the boxplots being the way they are. I would say that the departures from normality are not that severe and that I would
+#test the data with a parametric test. I would choose two-sample because each experimental unit is only observed once, and the experimental
+#units are independent of each other. They are from a normally distributed population and the ratio of sd is 1.39, so there is homoscedasticity.
+
+##Null hypothesis is 
+#umut-uWT = 0
+
+#Alternate hypothesis iS 
+#umut-uWT ≠ 0
+
 # Two-sided t test
 t.test(timeInAggression ~ genotype, data = zebrafish, var.equal = TRUE, alternative = "two.sided", conf.level = 0.95)
+
+##2.16 a&b####
 
 #t sample value is 3.38
 #df=19
@@ -317,20 +330,32 @@ t.test(timeInAggression ~ genotype, data = zebrafish, var.equal = TRUE, alternat
 ##95% confidence interval of the difference between the two means = 25.93-110.27
 #Mean Mutant group = 142.1
 #Mean Wild Type = 74.0
+
 #Difference 
 mean_zebraMut <-142.1
 mean_zebraWT <- 74.0
 diff_meanfish <- mean_zebraMut-mean_zebraWT
-var_zebraMut <-37.74
-var_zebraWT <- 52.5
+sd_zebraMut <-37.74
+sd_zebraWT <- 52.5
 dfMut <-9
 dfWT <- 10
+n_Mut <-10
+n_WT <-11
 
-pooled_variance <- ((dfMut*(var_zebraMut)^2) + (dfWT*(var_zebraWT)^2))/(dfMut+dfWT)
+pooled_variance <- ((dfMut*(sd_zebraMut)^2) + (dfWT*(sd_zebraWT)^2))/(dfMut+dfWT)
 #pooled variance = 2125.33
 
+##SE umut-uWT
 
-##a)magnitude is shown by the 95% confidence interval 
+SE <- (sqrt(pooled_variance*((1/n_Mut)+(1/n_WT))))
+
+##tsample 
+
+t_sample <- (mean_zebraMut-mean_zebraWT)/SE
+
+
+##a)magnitude is shown by the 95% confidence interval difference between the means
+## 25.93-110.27
 
 ##b)Two-sample t test was performed above 
 #null hypothesis is umut = uwt
@@ -338,4 +363,4 @@ pooled_variance <- ((dfMut*(var_zebraMut)^2) + (dfWT*(var_zebraWT)^2))/(dfMut+df
 #alternate hypothesis is umut ≠ uwt
 
 #The data show that there was a significant increase in aggression time for the Spd mutant group compared to 
-#the wild type group (two-sided, one sample t test, t=3.38, df=19, p-value = 0.0031)
+#the wild type group (two-sided, two sample t test, t=3.38, df=19, p-value = 0.0031)
