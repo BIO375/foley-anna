@@ -18,21 +18,32 @@ tidyverse_update()
 
 ##Mother vaccine antibodies####
 ##load data 
+##she is looking for INCREASE in antibody after vaccination
 
 baker <- read_csv("datasets/demos/baker.csv")
 
 baker <- baker %>%
   mutate (difference = After - Before)
 
+##Therefore if sees increase, then difference >0
+
 ##Q17####
 
 #1. Response = antibody concentration , Predictor = vaccination 
 
-#2. statistical null: ud=0
+#2. statistical null difference = after - before  
+#ud < or = 0
 
-#3. If all assumptions are met, alternative is that ud ≠ 0 
+# alternative is that ud > 0 
 
-#4. 
+#3. For these data, the default appropriate test would be a paired t-test. 
+#because it is looking at the differences before and after the vaccine.
+
+#4
+#Assumptions for paired t test: 
+#i)The people are randomly sampled from population but are not independent of each other 
+##technically there is volunteer bias but hopefully other than we will assume it is a random sample
+#ii) the differences are normally distributed 
 
 # Do the data meet the assumption of normality?  Check with plots.
 
@@ -53,30 +64,48 @@ ggplot(baker) +
 ggplot(baker)+
   geom_qq(aes(sample = difference))
 
-##These data are terrible. Try mutating it with log but it did not change much 
+##These data are terrible. Try mutating it with log 
+
 baker <- baker %>%
-  mutate (log1difference = log(difference+1))
+  mutate(logBefore = log(Before))
+
+baker <- baker %>%
+  mutate(logAfter = log(After))
+
+baker <- baker %>%
+  mutate(diff_logs = logAfter-logBefore)
+
+##now try graphs 
+ggplot(baker) +
+  geom_histogram(aes(diff_logs), binwidth = 1)
 
 ggplot(baker) +
-  geom_histogram(aes(log1difference), binwidth = 0.7)
-
-ggplot(baker) +
-  geom_boxplot(aes(x = '', y = log1difference))
+  geom_boxplot(aes(x = '', y = diff_logs))+
+  stat_summary(aes(x = "", y = diff_logs), 
+               fun.y=mean, 
+               colour="blue", 
+               fill = "blue",
+               geom="point", 
+               shape=21, 
+               size=3)
 
 ggplot(baker)+
-  geom_qq(aes(sample = log1difference))
+  geom_qq(aes(sample = diff_logs))
 
-##These data do not meet the assumptions for normality. The histogram is very left skewed and hard to find a binwidth that 
-#even connects them. The box plot does not have the median in the center and it is very difference than the mean. There are
-#3 outliers above the IQR and the whiskers are not even. The qq plot is not a straight line at all. Therefore, we need
+##These data do not meet the assumptions for normality (raw and log transformed data) The histogram is very left skewed and hard to find a bin width that 
+#even connects them. The box plot does not have the median in the center and it is very different than the mean. There are
+#3 outliers above the IQR and the whiskers are not even. The qq plot is not a straight line at all. The log transformed 
+#data helped with some of this, the qq plot got a bit better but not linear. and the box plot more symmetrical but
+#with outliers and difference between mean and median. I still do not think it made it normal enough. Therefore, we need
 #to perform the non-parametric sign test. 
 
-# One-sample, Two-sided
+
+# One-sample, One-sided, HA that sample mean is greater than null mean
 SignTest(baker$difference, 
-         alternative = "two.sided", mu = 0, conf.level = 0.95)
+         alternative = "greater", mu = 0, conf.level = 0.95)
 
 #There was a significant increase in the measured antibody concentration after the vaccination 
-#(Sign Test, two-sided: S=18, number of difference =20, p-value =0.0004025)
+#(Sign Test, two-sided: S=18, number of difference =20, p-value =0.0002012)
 
 
 ##Q18####
@@ -86,4 +115,59 @@ library("abd")
 
 algae <- AlgaeCO2
 
-#1. Response = , Predictor = 
+#1. Response = growth rate, Predictor = Treatment group (level of CO2)
+#2. Statistical null: u normal = u high or uh-un = 0
+##Alternative: u normal ≠ u high or uh - un ≠ 0
+#3. If all assumptions were met, the appropriate test would be a two-sample t test 
+#4. Assumptions of a Two-Sample T test
+##i)Obs are a random sample from the population and experimental units are independent
+#We know the groups are independent grown in different conditions, adn if the observations are 
+#not a random sample, then it is an experimental design issue, so we are assuming Collins and Bell did that
+#properly 
+##ii)Obs are from normally distributed population & iii)Two groups have homogeneous variance 
+#shown below 
+
+##Normality assumptions 
+
+ggplot(algae) +
+  geom_histogram(aes(growthrate), binwidth = 0.5)+
+  facet_wrap(~treatment)
+
+ggplot(algae) +
+  geom_boxplot(aes(x = treatment, y = growthrate))+
+  stat_summary(aes(x = treatment, y = growthrate), 
+               fun.y=mean, 
+               colour="blue", 
+               fill = "blue",
+               geom="point", 
+               shape=21, 
+               size=3)
+
+ggplot(algae)+
+  geom_qq(aes(sample = growthrate, color = treatment))
+
+# Examine the ratio of the variances
+summ_algae <- algae %>%
+  group_by(treatment) %>% 
+  summarise(mean_algae = mean(growthrate),
+            sd_algae = sd(growthrate),
+            n_algae = n())
+
+# Calculate the ratio between the standard deviations as a loose test of homoscedasticity
+ratio <-(max(summ_algae$sd_algae))/(min(summ_algae$sd_algae))
+
+##ratio is < 3, therefore the variances are considered equal. 
+
+##4. The histograms for both groups look relatively normal. The high CO2 boxplot has a median centered in the middle of IQR
+#and a mean that is only slightly higher. The upper whisker of this group is slightly longer than the bottom
+#but with no outliers. For the normal CO2 boxplot, the median is less centered in the middle of the IQR, but the mean
+#isn't that different than the median. The whiskers are even. For the qq plot, although
+#there is not many data points, it is still linear for both groups. Therefore we can perform a parametric test
+#Lastly, the ratio of s is 1.13, which means the variances are similar enough to perform a two sample over welch's t test
+
+# Two-sided
+t.test(growthrate ~ treatment, data = algae, var.equal = TRUE, alternative = "two.sided", conf.level = 0.95)
+
+
+#5. The growth rate was found not to be significantly different in the high CO2 group compared to the normal CO2 group.
+# (two-sample, two sided t test: t =-0.536, df=12, p value = 0.6017)
