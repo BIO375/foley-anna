@@ -128,3 +128,38 @@ ratio <-(max(summ_HCB$sd_HCB))/(min(summ_HCB$sd_HCB))
 
 model01 <- lm(Aldrin~Depth, data = jaffe)
 
+model02 <- lm(log_Aldrin ~ Depth, data = jaffe)
+
+##Step 2 HCB####
+
+model03 <- lm(HCB ~ Depth, data = jaffe)
+
+##Step 3 Aldrin####
+
+autoplot(model01)
+
+autoplot(model02)
+
+##Step 3 HCB####
+
+autoplot(model03)
+
+##Step 4 Aldrin####
+
+anova(model01)
+
+anova(model02)
+
+### Multiple Comparisons ####
+
+# Unplanned comparisons
+# The key things you need to specify here are the model name and the factor name
+
+tukey <- glht(model02, linfct = mcp(Depth = "Tukey"))
+summary(tukey)
+
+
+##Step 4 HCB####
+
+anova(model03)
+
