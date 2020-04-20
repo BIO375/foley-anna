@@ -49,7 +49,7 @@ ggplot(jaffe)+
   geom_qq(aes(sample = Aldrin, color = Depth))
 
 jaffe <- jaffe %>%
-  mutate(log_Aldrin = log(Aldrin))
+  mutate(log_Aldrin = log10(Aldrin))
 
 ##Do graphs for log transformed data 
 
