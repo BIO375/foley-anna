@@ -19,7 +19,7 @@ library("multcomp")
 library("nlme")
 
 # Load tidyverse
-install.packages("broom")
+
 library("tidyverse")
 # Check for updates
 tidyverse_update()
@@ -160,6 +160,11 @@ crabs <- read_csv("datasets/abd/chapter15/chap15q30FiddlerCrabFans.csv", col_typ
 
 crabs <- na.omit(crabs)
 
+crabs <- crabs %>%
+  mutate(crabType = fct_recode(crabType, intact_male = "intact male",
+                               minor_removed = "male minor removed",
+                               major_removed = "male major removed"))
+
 ##15-30 Step 1####
 
 ggplot(crabs) +
@@ -199,7 +204,6 @@ ratio <-(max(summ_crabs$sd_temp))/(min(summ_crabs$sd_temp))
 #so I feel it may still be appropriate to perform the parametric test. The ratio of sd is 1.18, so there are 
 #equal variances.
 
-
 #15-30 Step 2####
 
 model30 <- lm(bodyTemperature~crabType, data = crabs)
@@ -218,17 +222,29 @@ anova(model30)
 # Summary of the model results
 summary(model30)
 
-##We found that the conemass varied significantly with habitat (F=50.085, df=2,13, p=7.87e-7)
+##We found that body temperature varied significantly with crab type (F=20.312, df=3,80, p=6.997e-10)
 
-# Planned comparisons
+##15-31####
+##Planned comparisons####
 
-planned <- glht(model23, linfct = 
-                  mcp(habitat = c("island.absent-island.present = 0"
-                  )))
+planned <- glht(model30, linfct = 
+                  mcp(crabType = c("major_removed - minor_removed = 0")))
 confint(planned)
 summary(planned)
 
-##Using planned comparisons, the island absent showed significantly higher pinecone mass with island absent 
-#compared to island present (t=8.596, p = 1.01e-6)
+##Using planned comparisons, the major removed showed significantly higher body temperature
+#compared to minor removed (t=3.187, p = 0.00205)
+
+##Tukey Kramer####
+
+tukey <- glht(model30, linfct = mcp(crabType = "Tukey"))
+summary(tukey)
+
+##Groups that are significantly different are 
+#inact male & female
+#minor removed and female 
+#major removed and female 
+#major removed and minor removed 
+
 
 
