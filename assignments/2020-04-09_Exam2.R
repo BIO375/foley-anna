@@ -171,5 +171,5 @@ t.test(growthrate ~ treatment, data = algae, var.equal = TRUE, alternative = "tw
 # (two-sample, two sided t test: t =-0.536, df=12, p value = 0.602)
 
 
-
+# Code runs without breaking 10/10 ####
 

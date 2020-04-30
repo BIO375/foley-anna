@@ -345,7 +345,7 @@ ratio <-(max(elgar_summary$sd_lighting))/(min(elgar_summary$sd_lighting))
 t.test(elgar$HORIZLIG, elgar$HORIZDIM, 
        alternative = "two.sided", paired = TRUE, conf.level = 0.95)
  
- 
+### 10/10 code runs without breaking ####
  
  
  
