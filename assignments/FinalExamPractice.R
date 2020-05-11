@@ -97,3 +97,80 @@ ggplot(cichlid)+
 t.test(log_mRNA ~ territorialStatus, data = cichlid, var.equal = TRUE, alternative = "two.sided", conf.level = 0.95)
 
 
+###27-b####
+
+
+smoking <- read_csv("datasets/demos/NoSmokingDay.csv")
+
+##i) Null hypothesis
+
+#injuries on NSD ≤ injuries before NSD
+
+## alternate = 
+#injuries on NSD > injuries before NSD
+
+
+#ud (on NSD-before NSD) ≤ 0
+
+##ii) variables 
+
+# explanatory:    injury group = categorical nominal 
+#response variable: injuries =numerical continuous 
+
+##iii) Paired t test????
+
+
+##mutate data 
+
+smoking <- smoking %>%
+  mutate(injury_diff = injuriesOnNSD-injuriesBeforeNSD)
+
+# Look at the summary statistics
+summ_smoke <- smoking %>%
+  summarise(mean_diff = mean(injury_diff),
+            sd_diff = sd(injury_diff),
+            n_diff = n())
+
+# Look at histograms, box plots, q-q plots
+ggplot(smoking) +
+  geom_histogram(aes(injury_diff), binwidth = 20)
+
+ggplot(smoking) +
+  geom_boxplot(aes(x = "", y = injury_diff))+
+  stat_summary(aes(x = "", y = injury_diff), 
+               fun.y=mean, 
+               colour="blue", 
+               fill = "blue",
+               geom="point", 
+               shape=21, 
+               size=3)
+
+ggplot(smoking)+
+  geom_qq(aes(sample = injury_diff))
+
+##data looks normal, can perform a  one sided paired t test 
+
+t.test(smoking$injuriesOnNSD, smoking$injuriesBeforeNSD, 
+       alternative = "greater", paired = TRUE, conf.level = 0.95)
+
+##there was a significantly higher injury rate on NSD than before NSD 
+##(one sided paired t test, t=2.447, df=9, p-value = 0.0185)
+
+
+##27-c####
+
+oxygen <- read_csv("datasets/demos/oxygen.csv")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
