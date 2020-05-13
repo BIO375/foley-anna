@@ -96,6 +96,8 @@ ggplot(cichlid)+
 
 t.test(log_mRNA ~ territorialStatus, data = cichlid, var.equal = TRUE, alternative = "two.sided", conf.level = 0.95)
 
+##Territorial males have significantly higher GnH mRNA levels than non-territotrial fish 
+#(t = -2.9032, df=9, p-value = 0.0175)
 
 ###27-b####
 
@@ -104,13 +106,15 @@ smoking <- read_csv("datasets/demos/NoSmokingDay.csv")
 
 ##i) Null hypothesis
 
-#injuries on NSD ≤ injuries before NSD
+#injuries on NSD-injuries before NSD
+
+##ud ≥ 0
 
 ## alternate = 
 #injuries on NSD > injuries before NSD
 
 
-#ud (on NSD-before NSD) ≤ 0
+#ud (on NSD-before NSD) < 0
 
 ##ii) variables 
 
