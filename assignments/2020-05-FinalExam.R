@@ -73,3 +73,5 @@ ggplot(data = insulation, aes(x = leanness, y = heat_loss)) +
 
 
 
+
+
